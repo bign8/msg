@@ -28,22 +28,11 @@ type Context interface {
 
 // Transport is the core communication interface we will communicate over
 type Transport interface {
-	Open() error // blocking call
-	Close() error
-}
-
-// TRPC supports a full RPC structure
-type TRPC interface {
-	Transport
+	Open() error                     // start the given transport
+	IsOpen() bool                    // is this transport open
+	Close() error                    // close down this transport
 	Recv(func(string, []byte)) error // blocking call
-	Send(string, []byte) error
-}
-
-// TPubSub supports a publish/subscribe model of comunications
-type TPubSub interface {
-	Transport
-	Publish(name string, data []byte) error
-	Subscribe(name string, cb func([]byte)) (Stream, error)
+	Send(string, []byte) error       // Send some data
 }
 
 // Stream lets you listen to multiple messages on a socket

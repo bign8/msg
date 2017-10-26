@@ -33,7 +33,7 @@ type backoff struct {
 
 func (b backoff) Recv(fn func(string, []byte)) error {
 	b.att = 0
-	err := b.Transport.(TRPC).Recv(fn)
+	err := b.Transport.Recv(fn)
 	if err != ErrClosed {
 		return err
 	}

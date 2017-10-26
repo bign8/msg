@@ -24,7 +24,6 @@ type Option func(*Conn)
 type Conn struct {
 	hands map[string]func([]byte) // array of active handlers
 	trans Transport               // currently active transport
-	addr  string                  // address of connection
 
 	// TODO: think about removing these guys
 	err   error
@@ -34,25 +33,23 @@ type Conn struct {
 
 // Open is a blocking call that opens a connection
 func (s *Conn) Open() error {
-	for s.trans != nil {
-		s.err = s.trans.Open()
-		if s.err != nil {
-			return s.err
-		}
-
-		// Iff we are an RPC type, bind to core logic
-		if rpc, ok := s.trans.(TRPC); ok {
-			err := rpc.Recv(s.recv)
-			if err != ErrClosed {
-				return err
-			}
-		}
-
-		// Something failed, delay and try connecting again
-		var delay int
-		delay, s.att = retryDelay(s.att)
-		time.Sleep(time.Duration(delay))
+	err := s.trans.Open()
+	if err != nil {
+		return err
 	}
+
+	// keep the connection open
+	go func() {
+		for {
+			s.err = s.trans.Recv(s.recv)
+
+			// Something failed, delay and try connecting again
+			var delay int
+			delay, s.att = retryDelay(s.att)
+			time.Sleep(time.Duration(delay))
+		}
+	}()
+
 	return nil
 }
 
@@ -151,7 +148,7 @@ func (s *Conn) Publish(name string, data []byte) error {
 	// checkPubSubName(name)
 	// v := len(name) // Thanks binary.LittleEndian
 	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
-	return s.trans.(TRPC).Send(name, data)
+	return s.trans.Send(name, data)
 }
 
 // func checkPubSubName(name string) {
