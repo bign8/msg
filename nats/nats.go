@@ -5,17 +5,22 @@ import "github.com/bign8/msg"
 
 var _ msg.Transport = (*Transport)(nil)
 
-// Transport is a nats based transport
+// New constructs a new Transport
+func New() *Transport {
+	return &Transport{}
+}
+
+// Transport is a msg.Transport
 type Transport struct {
 }
 
-// Close kills the transport
-func (t *Transport) Close() error {
+// Kill closes the transport
+func (t *Transport) Kill() error {
 	return nil
 }
 
-// IsOpen verifies the transport is open
-func (t *Transport) IsOpen() bool {
+// Able verifies the transport is open
+func (t *Transport) Able() bool {
 	return false
 }
 
@@ -25,7 +30,7 @@ func (t *Transport) Open() error {
 }
 
 // Push does a one way transaction
-func (t *Transport) Push(subject string, data []byte) error {
+func (t *Transport) Push(ctx msg.Context, subject string, data []byte) error {
 	return nil
 }
 
@@ -35,6 +40,6 @@ func (t *Transport) Recv(fn func(string, []byte)) error {
 }
 
 // Send does an RPC stype round trip
-func (t *Transport) Send(subject string, data []byte) ([]byte, error) {
+func (t *Transport) Send(ctx msg.Context, subject string, data []byte) ([]byte, error) {
 	return nil, nil
 }

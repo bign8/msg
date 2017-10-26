@@ -31,8 +31,8 @@ type Context interface {
 // Transport is the core communication interface we will communicate over
 type Transport interface {
 	Open() error                                  // start the given transport
-	IsOpen() bool                                 // is this transport open
-	Close() error                                 // close down this transport
+	Able() bool                                   // is this transport open
+	Kill() error                                  // close down this transport
 	Recv(func(string, []byte)) error              // blocking call
 	Send(Context, string, []byte) ([]byte, error) // Send some data
 	Push(Context, string, []byte) error           // send a message one direction
