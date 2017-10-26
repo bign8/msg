@@ -42,11 +42,16 @@ func (s *Conn) Open() error {
 	go func() {
 		for {
 			s.err = s.trans.Recv(s.recv)
+			if s.err == errNotSupported {
+				s.err = nil
+				return
+			}
 
 			// Something failed, delay and try connecting again
 			var delay int
 			delay, s.att = retryDelay(s.att)
 			time.Sleep(time.Duration(delay))
+			s.trans.Open() // TODO: handle errors here
 		}
 	}()
 
@@ -88,7 +93,7 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	message := append([]byte(reply), data...) // TODO: send timeout too
 
 	// Publish request to the cloud
-	if err := s.Publish(rpcReqPrefix+name, message); err != nil {
+	if err := s.Publish(ctx, rpcReqPrefix+name, message); err != nil {
 		return nil, err
 	}
 
@@ -124,7 +129,7 @@ func (s *Conn) Handle(name string, fn func(Context, []byte) ([]byte, error)) (St
 		} else {
 			res = append([]byte{1}, res...)
 		}
-		s.Publish(rpcResPrefix+id, res) // TODO: handle error here
+		s.Publish(nil, rpcResPrefix+id, res) // TODO: handle error here
 	})
 }
 
@@ -141,14 +146,14 @@ func (s *Conn) Subscribe(name string, cb func([]byte)) (Stream, error) {
 }
 
 // Publish some data!
-func (s *Conn) Publish(name string, data []byte) error {
+func (s *Conn) Publish(ctx Context, name string, data []byte) error {
 	if s.err != nil || s.trans == nil {
 		return s.err
 	}
 	// checkPubSubName(name)
 	// v := len(name) // Thanks binary.LittleEndian
 	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
-	return s.trans.Send(name, data)
+	return s.trans.Push(ctx, name, data)
 }
 
 // func checkPubSubName(name string) {

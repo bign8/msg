@@ -16,6 +16,8 @@ const (
 // Common package errors
 var (
 	ErrClosed = errors.New("CLOSED")
+
+	errNotSupported = errors.New("not supported")
 )
 
 // Context mirrors context.Context (but with fewer imports)
@@ -28,11 +30,12 @@ type Context interface {
 
 // Transport is the core communication interface we will communicate over
 type Transport interface {
-	Open() error                     // start the given transport
-	IsOpen() bool                    // is this transport open
-	Close() error                    // close down this transport
-	Recv(func(string, []byte)) error // blocking call
-	Send(string, []byte) error       // Send some data
+	Open() error                                  // start the given transport
+	IsOpen() bool                                 // is this transport open
+	Close() error                                 // close down this transport
+	Recv(func(string, []byte)) error              // blocking call
+	Send(Context, string, []byte) ([]byte, error) // Send some data
+	Push(Context, string, []byte) error           // send a message one direction
 }
 
 // Stream lets you listen to multiple messages on a socket
