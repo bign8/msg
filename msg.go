@@ -28,9 +28,22 @@ type Context interface {
 
 // Transport is the core communication interface we will communicate over
 type Transport interface {
+	Open() error // blocking call
+	Close() error
+}
+
+// TRPC supports a full RPC structure
+type TRPC interface {
+	Transport
 	Recv(func(string, []byte)) error // blocking call
 	Send(string, []byte) error
-	Close() error
+}
+
+// TPubSub supports a publish/subscribe model of comunications
+type TPubSub interface {
+	Transport
+	Publish(name string, data []byte) error
+	Subscribe(name string, cb func([]byte)) (Stream, error)
 }
 
 // Builder is what is called when recreating Websockets
@@ -39,5 +52,5 @@ type Builder func(addr string) (Transport, error)
 // Stream lets you listen to multiple messages on a socket
 type Stream func() error
 
-// Unsubscribe from a process stream
-func (s Stream) Unsubscribe() error { return s() }
+// Close from a process stream
+func (s Stream) Close() error { return s() }

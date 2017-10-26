@@ -56,7 +56,7 @@ func (s *Conn) start() error {
 		return s.err
 	}
 
-	err := s.trans.Recv(s.recv)
+	err := s.trans.(TRPC).Recv(s.recv)
 	if err != ErrClosed {
 		return err
 	}
@@ -85,7 +85,7 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer sub.Unsubscribe() // TODO: log error here
+	defer sub.Close() // TODO: log error here
 
 	// Add reply channel to the request
 	message := append([]byte(reply), data...) // TODO: send timeout too
@@ -151,7 +151,7 @@ func (s *Conn) Publish(name string, data []byte) error {
 	// checkPubSubName(name)
 	// v := len(name) // Thanks binary.LittleEndian
 	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
-	return s.trans.Send(name, data)
+	return s.trans.(TRPC).Send(name, data)
 }
 
 // func checkPubSubName(name string) {
