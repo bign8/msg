@@ -46,9 +46,6 @@ type TPubSub interface {
 	Subscribe(name string, cb func([]byte)) (Stream, error)
 }
 
-// Builder is what is called when recreating Websockets
-type Builder func(addr string) (Transport, error)
-
 // Stream lets you listen to multiple messages on a socket
 type Stream func() error
 

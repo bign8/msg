@@ -6,11 +6,10 @@ import (
 )
 
 // New builds a new Sock that performs automatic retires on connection failures
-func New(addr string, builder Builder, opts ...Option) *Conn {
+func New(trans Transport, opts ...Option) *Conn {
 	conn := &Conn{
 		hands: make(map[string]func([]byte), 1),
-		build: builder,
-		addr:  addr,
+		trans: trans,
 	}
 	for _, o := range opts {
 		o(conn)
@@ -25,7 +24,6 @@ type Option func(*Conn)
 type Conn struct {
 	hands map[string]func([]byte) // array of active handlers
 	trans Transport               // currently active transport
-	build Builder                 // How to construct a new Connection
 	addr  string                  // address of connection
 
 	// TODO: think about removing these guys
@@ -36,7 +34,26 @@ type Conn struct {
 
 // Open is a blocking call that opens a connection
 func (s *Conn) Open() error {
-	return s.start()
+	for s.trans != nil {
+		s.err = s.trans.Open()
+		if s.err != nil {
+			return s.err
+		}
+
+		// Iff we are an RPC type, bind to core logic
+		if rpc, ok := s.trans.(TRPC); ok {
+			err := rpc.Recv(s.recv)
+			if err != ErrClosed {
+				return err
+			}
+		}
+
+		// Something failed, delay and try connecting again
+		var delay int
+		delay, s.att = retryDelay(s.att)
+		time.Sleep(time.Duration(delay))
+	}
+	return nil
 }
 
 func (s *Conn) recv(subject string, data []byte) {
@@ -48,23 +65,6 @@ func (s *Conn) recv(subject string, data []byte) {
 		return
 	}
 	fn(data)
-}
-
-func (s *Conn) start() error {
-	s.trans, s.err = s.build(s.addr)
-	if s.err != nil {
-		return s.err
-	}
-
-	err := s.trans.(TRPC).Recv(s.recv)
-	if err != ErrClosed {
-		return err
-	}
-
-	var delay int
-	delay, s.att = retryDelay(s.att)
-	time.Sleep(time.Duration(delay))
-	return s.start()
 }
 
 func (s *Conn) genID() string {
