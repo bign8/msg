@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	rpcReqPrefix = "rpc.req."
+	rpcReqPrefix = "rpc.req." // rpc.req.<service>.<version>.<function>
 	rpcResPrefix = "rpc.res."
 )
 
@@ -33,6 +33,7 @@ type Transport interface {
 	Open() error                                  // start the given transport
 	Able() bool                                   // is this transport open
 	Kill() error                                  // close down this transport
+	Wait() <-chan error                           // channel is closed when transport is closed
 	Recv(func(string, []byte)) error              // blocking call
 	Send(Context, string, []byte) ([]byte, error) // Send some data
 	Push(Context, string, []byte) error           // send a message one direction

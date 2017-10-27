@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Testing Messaging WebSockets</title>
+		<style>
+			h1 {
+				text-align: center;
+			}
+			pre {
+				border: 1px solid black;
+				padding: 5px;
+				margin: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Testing Messaging WebSockets</h1>
+		<pre id="output"></pre>
+		<script>
+			(function(c, l, e) {
+				c.log = function() {
+					e.innerText += arguments[0] + "\n"; // TODO: handle larger argument streams
+					l.apply(c, arguments);
+				};
+			})(console, console.log, document.getElementById('output'));
+		</script>
+		<script src="client.js"></script>
+	</body>
+</html>

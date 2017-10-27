@@ -49,7 +49,7 @@ func (s *Conn) Open() error {
 
 			// Something failed, delay and try connecting again
 			var delay int
-			delay, s.att = retryDelay(s.att)
+			delay, s.att = RetryDelay(s.att)
 			time.Sleep(time.Duration(delay))
 			s.trans.Open() // TODO: handle errors here
 		}
