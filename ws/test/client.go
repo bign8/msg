@@ -10,12 +10,14 @@ import (
 	"time"
 
 	"github.com/bign8/msg/ws"
+	"github.com/gopherjs/gopherjs/js"
 )
 
 func TestRealThing(t *testing.T) {
 	t.Log("Opening Socket 1")
 	print("Opening Socket 2")
-	sock := ws.New("ws://localhost:3000")
+	loc := js.Global.Get("document").Get("location").Get("href").Call("replace", "http", "ws", 1).String() + "ws"
+	sock := ws.New(loc)
 	time.Sleep(time.Second)
 	print("Verifying Socket is Able")
 	if sock.Able() {
