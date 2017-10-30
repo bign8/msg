@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/exec"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/yhat/wsutil"
 )
 
 //go:generate gopherjs build -mv client.go
@@ -39,7 +39,8 @@ func main() {
 
 	// Reverse proxy for web-sockets
 	serv, _ := url.Parse("http://localhost:3001")
-	rp := httputil.NewSingleHostReverseProxy(serv)
+	// rp := httputil.NewSingleHostReverseProxy(serv)
+	rp := wsutil.NewSingleHostReverseProxy(serv)
 	http.Handle("/ws/", rp)
 
 	go watch("client.go", updates, func() error {

@@ -17,7 +17,7 @@ var loc = js.Global.Get("document").Get("location").Get("href").Call("replace", 
 func TestRealThing(t *testing.T) {
 	t.Log("Opening Socket 1")
 	print("Opening Socket 2")
-	sock := ws.New("ws://localhost:3001/ws/immediate-close")
+	sock := ws.New(loc + "immediate-close")
 	time.Sleep(time.Second)
 	print("Verifying Socket is Able")
 	if sock.Able() {
