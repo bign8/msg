@@ -14,18 +14,20 @@ import (
 
 var loc = js.Global.Get("document").Get("location").Get("href").Call("replace", "http", "ws", 1).String() + "ws/"
 
-func TestRealThing(t *testing.T) {
-	t.Log("Opening Socket 1")
-	print("Opening Socket 2")
+func TestImmediateClose(t *testing.T) {
 	sock := ws.New(loc + "immediate-close")
-	time.Sleep(time.Second)
-	print("Verifying Socket is Able")
 	if sock.Able() {
 		panic("Should have to open this bad boy first")
 	}
-	err := sock.Open()
-	if err != nil {
+	if err := sock.Open(); err != nil {
 		t.Errorf("Could not open socket: %s", err)
+	}
+	if !sock.Able() {
+		t.Errorf("Client should be able for a bit")
+	}
+	time.Sleep(time.Millisecond)
+	if sock.Able() {
+		t.Errorf("Socket should be dead by now")
 	}
 }
 
@@ -50,8 +52,8 @@ func main() {
 		return true, nil
 	}, []testing.InternalTest{
 		{
-			Name: "TestRealThing",
-			F:    TestRealThing,
+			Name: "TestImmediateClose",
+			F:    TestImmediateClose,
 		},
 	}, nil, nil)
 }
