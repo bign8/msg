@@ -69,8 +69,9 @@ func (t *Transport) onOpen(obj *js.Object) {
 
 func (t *Transport) onClose(obj *js.Object) {
 	t.ws.Close()
-	close(t.ch)
+	ch := t.ch
 	t.ch = nil
+	close(ch)
 }
 
 func (t *Transport) onMsg(obj *js.Object) {

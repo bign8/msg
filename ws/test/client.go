@@ -5,7 +5,6 @@ package main
 import (
 	"flag"
 	"testing"
-	"time"
 
 	"github.com/bign8/msg/ws"
 	"github.com/gopherjs/gopherjs/js"
@@ -25,7 +24,7 @@ func TestImmediateClose(t *testing.T) {
 	if !sock.Able() {
 		t.Errorf("Client should be able for a bit")
 	}
-	time.Sleep(time.Millisecond)
+	<-sock.Wait() // auto-closing socket
 	if sock.Able() {
 		t.Errorf("Socket should be dead by now")
 	}
