@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Thanks: https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
 func jsSetupFakeWS(t *testing.T) {
 	if js.Global.Get("WebSocket") == js.Undefined {
 		js.Global.Set("WebSocket", func() *js.Object {
