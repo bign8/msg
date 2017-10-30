@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"testing"
+	"time"
 
 	"github.com/bign8/msg/ws"
 	"github.com/gopherjs/gopherjs/js"
@@ -24,14 +25,18 @@ func TestImmediateClose(t *testing.T) {
 	if !sock.Able() {
 		t.Errorf("Client should be able for a bit")
 	}
-	<-sock.Wait() // auto-closing socket
+	select {
+	case <-sock.Wait(): // auto-closing socket
+	case <-time.After(time.Second):
+		t.Fatal("Socket didn't close after 1 second")
+	}
 	if sock.Able() {
 		t.Errorf("Socket should be dead by now")
 	}
 }
 
 func main() {
-	flag.Set("test.v", "true")
+	flag.Set("test.v", "true") // verbose unit test logs
 
 	// Wait for a refresh
 	sock, err := websocketjs.New(loc + "watcher")
