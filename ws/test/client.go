@@ -31,9 +31,12 @@ func main() {
 	// Wait for a refresh
 	sock, err := websocketjs.New(loc + "watcher")
 	if err == nil {
-		sock.AddEventListener("message", false, func(msg *js.Object) {
+		die := func(msg *js.Object) {
 			js.Global.Get("document").Get("location").Call("reload")
-		})
+		}
+		sock.AddEventListener("message", false, die)
+		sock.AddEventListener("close", false, die)
+		sock.AddEventListener("error", false, die)
 	} else {
 		print("Could not open watcher socket")
 	}

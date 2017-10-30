@@ -1,6 +1,6 @@
-package main
+// +build ignore
 
-//go:generate gopherjs build -mv client.go
+package main
 
 import (
 	"flag"
