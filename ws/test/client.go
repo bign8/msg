@@ -17,11 +17,15 @@ var loc = js.Global.Get("document").Get("location").Get("href").Call("replace", 
 func TestRealThing(t *testing.T) {
 	t.Log("Opening Socket 1")
 	print("Opening Socket 2")
-	sock := ws.New(loc)
+	sock := ws.New("ws://localhost:3001/ws/immediate-close")
 	time.Sleep(time.Second)
 	print("Verifying Socket is Able")
 	if sock.Able() {
 		panic("Should have to open this bad boy first")
+	}
+	err := sock.Open()
+	if err != nil {
+		t.Errorf("Could not open socket: %s", err)
 	}
 }
 

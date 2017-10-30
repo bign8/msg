@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -25,6 +27,20 @@ var (
 func main() {
 	updates := make(chan time.Time)
 	register := make(chan chan time.Time)
+	unregister := make(chan chan time.Time)
+	var server *exec.Cmd
+	defer func() {
+		server.Process.Kill()
+	}()
+
+	// Statis serve everything!
+	dir := os.Getenv("GOPATH") + "/src/github.com/bign8/msg/ws/test"
+	http.Handle("/", http.FileServer(http.Dir(dir)))
+
+	// Reverse proxy for web-sockets
+	serv, _ := url.Parse("http://localhost:3001")
+	rp := httputil.NewSingleHostReverseProxy(serv)
+	http.Handle("/ws/", rp)
 
 	go watch("client.go", updates, func() error {
 		cmd := exec.Command("go", "generate", "./...")
@@ -33,8 +49,13 @@ func main() {
 		return cmd.Run()
 	})
 	go watch("server.go", updates, func() error {
-		log.Println("TODO: refresh running server")
-		return nil
+		if server != nil {
+			server.Process.Kill()
+		}
+		server = exec.Command("go", "run", dir+"/server.go")
+		server.Stdout = os.Stdout
+		server.Stderr = os.Stderr
+		return server.Start()
 	})
 	go func() {
 		listeners := make(map[chan<- time.Time]bool)
@@ -42,13 +63,11 @@ func main() {
 			select {
 			case client := <-register:
 				listeners[client] = true
+			case client := <-unregister:
+				delete(listeners, client)
 			case now := <-updates:
 				for client := range listeners {
-					select {
-					case client <- now:
-					default:
-						delete(listeners, client)
-					}
+					client <- now
 				}
 			}
 		}
@@ -66,10 +85,6 @@ func main() {
 		}
 		conn.Close()
 	})
-
-	// Statis serve everything!
-	dir := os.Getenv("GOPATH") + "/src/github.com/bign8/msg/ws/test"
-	http.Handle("/", http.FileServer(http.Dir(dir)))
 
 	// Perform updates and client refreshes
 	log.Printf("Watcher: Serving on :%d", *port)
