@@ -13,3 +13,6 @@ func main() {
 	// iff pub-sub payload it too large to send over sock:
 	//     serve file locally and publish host url
 }
+
+// Note: base socket can be nats or websocket
+// Added feature: should provide service status for all connected hosts
