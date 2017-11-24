@@ -55,9 +55,30 @@ func main() {
 	testing.Main(func(pat string, str string) (bool, error) {
 		return true, nil
 	}, []testing.InternalTest{
-		{
-			Name: "TestImmediateClose",
-			F:    TestImmediateClose,
-		},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
+		{Name: "TestImmediateClose", F: TestImmediateClose},
 	}, nil, nil)
 }

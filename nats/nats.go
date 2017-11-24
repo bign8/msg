@@ -19,6 +19,11 @@ func (t *Transport) Kill() error {
 	return nil
 }
 
+// Wait returns when transport closes
+func (t *Transport) Wait() <-chan error {
+	return nil
+}
+
 // Able verifies the transport is open
 func (t *Transport) Able() bool {
 	return false
