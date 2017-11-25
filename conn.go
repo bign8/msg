@@ -10,6 +10,7 @@ func New(trans Transport, opts ...Option) *Conn {
 	conn := &Conn{
 		hands: make(map[string]func([]byte), 1),
 		trans: trans,
+		close: make(chan chan error, 1),
 	}
 	for _, o := range opts {
 		o(conn)
@@ -31,31 +32,31 @@ type Conn struct {
 	close chan chan error // closing
 }
 
-// Open is a blocking call that opens a connection
+// Open starts a connection
 func (s *Conn) Open() error {
 	err := s.trans.Open()
 	if err != nil {
 		return err
 	}
-
-	// keep the connection open
-	go func() {
-		for {
-			s.err = s.trans.Recv(s.recv)
-			if s.err == errNotSupported {
-				s.err = nil
-				return
-			}
-
-			// Something failed, delay and try connecting again
-			var delay int
-			delay, s.att = RetryDelay(s.att)
-			time.Sleep(time.Duration(delay))
-			s.trans.Open() // TODO: handle errors here
-		}
-	}()
-
+	go s.open()
 	return nil
+}
+
+// open manages the connection
+func (s *Conn) open() {
+	for {
+		s.err = s.trans.Recv(s.recv)
+		if s.err == errNotSupported {
+			s.err = nil
+			return
+		}
+
+		// Something failed, delay and try connecting again
+		var delay int
+		delay, s.att = RetryDelay(s.att)
+		time.Sleep(time.Duration(delay))
+		s.trans.Open() // TODO: handle errors here
+	}
 }
 
 func (s *Conn) recv(subject string, data []byte) {
@@ -78,6 +79,9 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}
+	if !s.trans.Able() {
+		return nil, ErrClosed
+	}
 	resc := make(chan []byte, 1)
 	defer close(resc) // yay memory leaks
 
@@ -98,7 +102,7 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	}
 
 	// Pick real deadline
-	after := time.Minute
+	after := time.Second // TODO: make larger
 	deadline, ok := ctx.Deadline()
 	if ok {
 		after = deadline.Sub(time.Now())
@@ -154,6 +158,13 @@ func (s *Conn) Publish(ctx Context, name string, data []byte) error {
 	// v := len(name) // Thanks binary.LittleEndian
 	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
 	return s.trans.Push(ctx, name, data)
+}
+
+// Close kills a connection
+func (s *Conn) Close() error {
+	killer := make(chan error, 1)
+	s.close <- killer
+	return <-killer // TODO: timeout
 }
 
 // func checkPubSubName(name string) {

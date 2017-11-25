@@ -34,7 +34,7 @@ type Transport interface {
 	Able() bool                                   // is this transport open
 	Kill() error                                  // close down this transport
 	Wait() <-chan error                           // channel is closed when transport is closed
-	Recv(func(string, []byte)) error              // blocking call
+	Recv(func(string, []byte)) error              // blocking call - when data is received
 	Send(Context, string, []byte) ([]byte, error) // Send some data
 	Push(Context, string, []byte) error           // send a message one direction
 }
