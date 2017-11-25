@@ -59,15 +59,15 @@ func (s *Conn) open() {
 	}
 }
 
-func (s *Conn) recv(subject string, data []byte) {
+func (s *Conn) recv(msg *Msg) {
 	s.att = 0
 	s.err = nil
-	fn, ok := s.hands[subject]
+	fn, ok := s.hands[msg.Title]
 	if !ok {
-		print("Unsupported function:" + subject)
+		print("Unsupported function:" + msg.Title)
 		return
 	}
-	fn(data)
+	fn(msg.Body)
 }
 
 func (s *Conn) genID() string {
@@ -93,11 +93,8 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	}
 	defer sub.Close() // TODO: log error here
 
-	// Add reply channel to the request
-	message := append([]byte(reply), data...) // TODO: send timeout too
-
 	// Publish request to the cloud
-	if err := s.Publish(ctx, rpcReqPrefix+name, message); err != nil {
+	if err := s.trans.Push(ctx, &Msg{Title: rpcReqPrefix + name, Reply: rpcResPrefix + reply, Body: data}); err != nil {
 		return nil, err
 	}
 
@@ -157,7 +154,7 @@ func (s *Conn) Publish(ctx Context, name string, data []byte) error {
 	// checkPubSubName(name)
 	// v := len(name) // Thanks binary.LittleEndian
 	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
-	return s.trans.Push(ctx, name, data)
+	return s.trans.Push(ctx, &Msg{Title: name, Body: data})
 }
 
 // Close kills a connection

@@ -20,6 +20,13 @@ var (
 	errNotSupported = errors.New("not supported")
 )
 
+// Msg is the core data struct for transporting messages
+type Msg struct {
+	Title string
+	Reply string
+	Body  []byte
+}
+
 // Context mirrors context.Context (but with fewer imports)
 type Context interface {
 	Deadline() (deadline time.Time, ok bool)
@@ -30,13 +37,13 @@ type Context interface {
 
 // Transport is the core communication interface we will communicate over
 type Transport interface {
-	Open() error                                  // start the given transport
-	Able() bool                                   // is this transport open
-	Kill() error                                  // close down this transport
-	Wait() <-chan error                           // channel is closed when transport is closed
-	Recv(func(string, []byte)) error              // blocking call - when data is received
-	Send(Context, string, []byte) ([]byte, error) // Send some data
-	Push(Context, string, []byte) error           // send a message one direction
+	Open() error                      // start the given transport
+	Able() bool                       // is this transport open
+	Kill() error                      // close down this transport
+	Wait() <-chan error               // channel is closed when transport is closed
+	Recv(func(*Msg)) error            // blocking call - when data is received
+	Send(Context, *Msg) (*Msg, error) // Send some data
+	Push(Context, *Msg) error         // send a message one direction
 }
 
 // Stream lets you listen to multiple messages on a socket
