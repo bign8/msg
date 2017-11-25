@@ -6,25 +6,20 @@ import (
 )
 
 // New builds a new Sock that performs automatic retires on connection failures
-func New(trans Transport, opts ...Option) *Conn {
+func New(trans Transport) *Conn {
 	conn := &Conn{
-		hands: make(map[string]func([]byte), 1),
+		hands: make(map[string]Handler, 1),
 		trans: trans,
 		close: make(chan chan error, 1),
-	}
-	for _, o := range opts {
-		o(conn)
+		err:   ErrClosed,
 	}
 	return conn
 }
 
-// Option is a particular option you can apply to a connection
-type Option func(*Conn)
-
 // Conn is a core managed connection for all communication
 type Conn struct {
-	hands map[string]func([]byte) // array of active handlers
-	trans Transport               // currently active transport
+	hands map[string]Handler // array of active handlers
+	trans Transport          // currently active transport
 
 	// TODO: think about removing these guys
 	err   error
@@ -34,9 +29,9 @@ type Conn struct {
 
 // Open starts a connection
 func (s *Conn) Open() error {
-	err := s.trans.Open()
-	if err != nil {
-		return err
+	s.err = s.trans.Open()
+	if s.err != nil {
+		return s.err
 	}
 	go s.open()
 	return nil
@@ -67,7 +62,7 @@ func (s *Conn) recv(msg *Msg) {
 		print("Unsupported function:" + msg.Title)
 		return
 	}
-	fn(msg.Body)
+	fn(msg)
 }
 
 func (s *Conn) genID() string {
@@ -75,26 +70,31 @@ func (s *Conn) genID() string {
 }
 
 // Request executes an RPC
-func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
+func (s *Conn) Request(ctx Context, msg *Msg) (*Msg, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}
 	if !s.trans.Able() {
 		return nil, ErrClosed
 	}
-	resc := make(chan []byte, 1)
+	resc := make(chan *Msg, 1)
 	defer close(resc) // yay memory leaks
 
 	// Generate response subscription
-	reply := s.genID()
-	sub, err := s.Subscribe(rpcResPrefix+reply, func(res []byte) { resc <- res })
+	reply := rpcResPrefix + s.genID()
+	sub, err := s.Subscribe(reply, func(res *Msg) error {
+		resc <- res
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 	defer sub.Close() // TODO: log error here
+	msg.Reply = reply
 
 	// Publish request to the cloud
-	if err := s.trans.Push(ctx, &Msg{Title: rpcReqPrefix + name, Reply: rpcResPrefix + reply, Body: data}); err != nil {
+	msg.Title = rpcReqPrefix + msg.Title
+	if err := s.trans.Push(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -107,32 +107,30 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 
 	// Whichever comes first
 	select {
-	case bits := <-resc:
-		return bits, nil
+	case res := <-resc:
+		return res, nil
 	case <-time.After(after):
 		return nil, errors.New("Request Timeout")
 	}
 }
 
 // Handle provides a response to a fn
-func (s *Conn) Handle(name string, fn func(Context, []byte) ([]byte, error)) (Stream, error) {
+func (s *Conn) Handle(name string, fn func(Context, *Msg) (*Msg, error)) (Stream, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}
-	return s.Subscribe(rpcReqPrefix+name, func(data []byte) {
-		id := string(data[:8])
-		res, err := fn(nil, data[8:]) // TODO: pass in context
+	return s.Subscribe(rpcReqPrefix+name, func(msg *Msg) error {
+		res, err := fn(nil, msg) // TODO: pass in context
 		if err != nil {
-			res = append([]byte{0}, []byte(err.Error())...)
-		} else {
-			res = append([]byte{1}, res...)
+			return err
 		}
-		s.Publish(nil, rpcResPrefix+id, res) // TODO: handle error here
+		res.Title = rpcResPrefix + res.Title
+		return s.trans.Push(nil, res) // TODO: handle error here
 	})
 }
 
 // Subscribe to a given broadcast channel
-func (s *Conn) Subscribe(name string, cb func([]byte)) (Stream, error) {
+func (s *Conn) Subscribe(name string, cb Handler) (Stream, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}
@@ -144,14 +142,11 @@ func (s *Conn) Subscribe(name string, cb func([]byte)) (Stream, error) {
 }
 
 // Publish some data!
-func (s *Conn) Publish(ctx Context, name string, data []byte) error {
+func (s *Conn) Publish(ctx Context, msg *Msg) error {
 	if s.err != nil || s.trans == nil {
 		return s.err
 	}
-	// checkPubSubName(name)
-	// v := len(name) // Thanks binary.LittleEndian
-	// message := append([]byte{byte(v), byte(v >> 8)}, data...)
-	return s.trans.Push(ctx, &Msg{Title: name, Body: data})
+	return s.trans.Push(ctx, msg)
 }
 
 // Close kills a connection
@@ -160,9 +155,3 @@ func (s *Conn) Close() error {
 	s.close <- killer
 	return <-killer // TODO: timeout
 }
-
-// func checkPubSubName(name string) {
-// 	if len(name) > 16 {
-// 		panic("Publish name too long: '" + name + "' > 16")
-// 	}
-// }

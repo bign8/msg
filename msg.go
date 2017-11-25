@@ -27,6 +27,9 @@ type Msg struct {
 	Body  []byte
 }
 
+// Handler is a message handler
+type Handler func(*Msg) error
+
 // Context mirrors context.Context (but with fewer imports)
 type Context interface {
 	Deadline() (deadline time.Time, ok bool)
