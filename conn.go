@@ -108,10 +108,7 @@ func (s *Conn) Request(ctx Context, name string, data []byte) ([]byte, error) {
 	// Whichever comes first
 	select {
 	case bits := <-resc:
-		if bits[0] == 1 {
-			return bits[1:], nil
-		}
-		return nil, errors.New(string(bits[1:]))
+		return bits, nil
 	case <-time.After(after):
 		return nil, errors.New("Request Timeout")
 	}

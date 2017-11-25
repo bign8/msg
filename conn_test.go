@@ -41,7 +41,6 @@ func (t *tranz) Recv(fn func(*Msg)) error {
 	for m := range t.tunnel {
 		m.Title = m.Reply // make it a reply
 		m.Reply = ""
-		m.Body = append([]byte{1}, m.Body...)
 		fn(m)
 	}
 	return nil
