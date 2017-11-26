@@ -83,16 +83,16 @@ func (t *Transport) onErr(obj *js.Object) {
 }
 
 // Push does a one way transaction
-func (t *Transport) Push(ctx msg.Context, subject string, data []byte) error {
+func (t *Transport) Push(ctx msg.Context, m *msg.Msg) error {
 	return nil
 }
 
 // Recv receives data (blocking call if suppported)
-func (t *Transport) Recv(fn func(string, []byte)) error {
+func (t *Transport) Recv(fn func(*msg.Msg)) error {
 	return nil
 }
 
 // Send does an RPC stype round trip
-func (t *Transport) Send(ctx msg.Context, subject string, data []byte) ([]byte, error) {
+func (t *Transport) Send(ctx msg.Context, m *msg.Msg) (*msg.Msg, error) {
 	return nil, nil
 }
