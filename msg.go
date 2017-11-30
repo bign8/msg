@@ -40,10 +40,7 @@ type Context interface {
 
 // Transport is the core communication interface we will communicate over
 type Transport interface {
-	Open() error                      // start the given transport
-	Able() bool                       // is this transport open
-	Kill() error                      // close down this transport
-	Wait() <-chan error               // channel is closed when transport is closed
+	Managed
 	Recv(func(*Msg)) error            // blocking call - when data is received
 	Send(Context, *Msg) (*Msg, error) // Send some data
 	Push(Context, *Msg) error         // send a message one direction
@@ -54,3 +51,18 @@ type Stream func() error
 
 // Close from a process stream
 func (s Stream) Close() error { return s() }
+
+// PubSub is xxx
+type PubSub interface {
+	Managed
+	Pub(*Msg) error
+	Sub(subject string, cb func(*Msg)) (Stream, error)
+}
+
+// Managed ...
+type Managed interface {
+	Open() error        // start the given transport
+	Able() bool         // is this transport open
+	Kill() error        // close down this transport
+	Wait() <-chan error // channel is closed when transport is closed
+}
