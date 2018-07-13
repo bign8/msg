@@ -6,6 +6,10 @@ import (
 	"io"
 )
 
+const (
+	apiPath = "/rpc_http"
+)
+
 // Call is the fundamental API between product and infrastructure.
 // 
 // Usage:
@@ -41,7 +45,25 @@ type Subscription struct {
 }
 
 func rpc(ctx context.Context, service, method string, in io.Reader, out io.Writer) error {
-	return errors.New("simple.RPC: TODO")
+	req, err := http.NewRequest(http.MethodPost, os.Getenv("API_HOST")+apiPath, in)
+	if err != nil {
+		return err
+	}
+	// TODO: send this data encoded in the message
+	req.Header.Add("X-BIGN8-SERVICE", service)
+	req.Header.Add("X-BIGN8-METHOD", method)
+	res, err := http.DefaultClient.Do(req.WithContext(ctx)) // TODO: use client that limits outgoing dials to 100 per process
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(res.Body)
+		return errors.New("simple.RPC: unknown failure: " + string(body))
+	}
+	// TODO: decode possible errors from response body
+	_, err = io.Copy(out, res.Body)
+	return err
 }
 
 func pub(ctx context.Context, service, method string, in io.Reader) error {
