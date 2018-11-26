@@ -70,7 +70,7 @@ func (s *Conn) genID() string {
 }
 
 // Request executes an RPC
-func (s *Conn) Request(ctx Context, msg *Msg) (*Msg, error) {
+func (s *Conn) Request(ctx ContextOld, msg *Msg) (*Msg, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}
@@ -142,7 +142,7 @@ func (s *Conn) Subscribe(name string, cb Handler) (Stream, error) {
 }
 
 // Publish some data!
-func (s *Conn) Publish(ctx Context, msg *Msg) error {
+func (s *Conn) Publish(ctx ContextOld, msg *Msg) error {
 	if s.err != nil || s.trans == nil {
 		return s.err
 	}
