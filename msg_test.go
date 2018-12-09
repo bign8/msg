@@ -16,9 +16,11 @@ func Test(t *testing.T) {
 	s.Register(ServiceDesc{
 		Name: "test",
 		Methods: []MethodDesc{{
-			Name: "ping",
-			Handler: func(ctx Context, svc interface{}, in Reader, out Writer) error {
-				return nil
+			Name:   "ping",
+			Args:   Ptr{Bool},
+			Result: Ptr{Bool},
+			Handler: func(ctx Context, svc interface{}, args interface{}) (interface{}, error) {
+				return nil, nil
 			},
 		}},
 	}, nil)
