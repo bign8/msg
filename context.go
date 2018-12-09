@@ -40,3 +40,15 @@ func (c *valueCtx) Value(key interface{}) interface{} {
 	}
 	return c.Context.Value(key)
 }
+
+// Simple contexts exposed by package
+var (
+	Background Context = emptyCtx(0)
+	TODO       Context = emptyCtx(1)
+)
+
+type emptyCtx int
+
+func (emptyCtx) Done() <-chan struct{}         { return nil }
+func (emptyCtx) Err() error                    { return nil }
+func (emptyCtx) Value(interface{}) interface{} { return nil }
