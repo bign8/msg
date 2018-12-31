@@ -1,8 +1,20 @@
 package buff
 
+import "github.com/bign8/msg"
+
 // New constructs a Buffer for packing/unpacking info
 func New(b []byte) Buffer {
 	return newInternal(b)
+}
+
+// NewReader ...
+func NewReader(msg.Reader) Buffer {
+	return nil
+}
+
+// NewWriter ...
+func NewWriter(msg.Writer) Buffer {
+	return nil
 }
 
 // Type is a base serializable type.
