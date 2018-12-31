@@ -56,6 +56,8 @@ func (b *buff) WriteBytes(a []byte) {
 	if b.err == nil {
 		l := len(a)
 		b.WriteInt(l)
+	}
+	if b.err == nil {
 		n := b.grow(l)
 		copy(b.arr[n:], a)
 	}

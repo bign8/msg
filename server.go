@@ -46,17 +46,25 @@ func (s *Server) Call(ctx Context, service, method string, in Reader, out Writer
 	if !ok {
 		return errors.New("server: unregistered service: " + service)
 	}
-	var target MethodHandler
+	var target *MethodDesc
 	for _, m := range svc.sd.Methods {
 		if m.Name == method {
-			target = m.Handler
+			target = &m
 			break
 		}
 	}
 	if target == nil {
 		return errors.New("server: invalid method: '" + method + "' on service '" + service + "'")
 	}
-	return target(ctx, svc.ss, in, out)
+	args, err := target.Args.ReadFrom(in)
+	if err != nil {
+		return err
+	}
+	res, err := target.Handler(ctx, svc.ss, args)
+	if err != nil {
+		return err
+	}
+	return target.Result.WriteTo(res, out)
 }
 
 // ServiceDesc defines the adapter part of a service that allows Call to invoke methods on a service object.
@@ -68,8 +76,10 @@ type ServiceDesc struct {
 // MethodDesc defines how a method can be invoked for a given
 type MethodDesc struct {
 	Name    string
+	Args    Type
+	Result  Type
 	Handler MethodHandler
 }
 
 // MethodHandler is the core method handler for a given type
-type MethodHandler func(ctx Context, svc interface{}, in Reader, out Writer) error
+type MethodHandler func(ctx Context, svc interface{}, args interface{}) (interface{}, error)
