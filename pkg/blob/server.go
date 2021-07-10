@@ -3,7 +3,7 @@ package blob
 import (
 	"net/http"
 
-	msg "github.com/bign8/msg/pkg"
+	"github.com/bign8/msg"
 	"github.com/bign8/msg/pkg/rand"
 )
 

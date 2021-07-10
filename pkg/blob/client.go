@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	msg "github.com/bign8/msg/pkg"
+	"github.com/bign8/msg"
 )
 
 // NewClient constructs a new blob client

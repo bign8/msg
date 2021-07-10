@@ -1,7 +1,7 @@
 // Package nats holds a nats implementation of binding
 package nats
 
-import msg "github.com/bign8/msg/pkg"
+import "github.com/bign8/msg"
 
 var _ msg.Transport = (*Transport)(nil)
 

@@ -5,7 +5,7 @@ package claimcheck
 import (
 	"errors"
 
-	msg "github.com/bign8/msg/pkg"
+	"github.com/bign8/msg"
 )
 
 var _ msg.Transport = (*Transport)(nil)
