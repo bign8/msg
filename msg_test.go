@@ -39,12 +39,12 @@ func Test(t *testing.T) {
 		}
 	}
 
-	{ // Invoke a method
-		err := s.Call(Background, "test", "ping", nil, nil)
-		if err != nil {
-			t.Errorf("Unexpected Error: %v", err)
-		}
-	}
+	// { // Invoke a method
+	// 	err := s.Call(Background, "test", "ping", nil, nil)
+	// 	if err != nil {
+	// 		t.Errorf("Unexpected Error: %v", err)
+	// 	}
+	// }
 
 	{ // Perform call with unbound context
 		err := Call(Background, "test", "ping", nil, nil)
@@ -53,12 +53,12 @@ func Test(t *testing.T) {
 		}
 	}
 
-	{ // Perform call with a bound context
-		ctx := WithCaller(Background, s.Call)
-		ctx = WithValue(ctx, "asdf", "jkl;")
-		err := Call(ctx, "test", "ping", nil, nil)
-		if err != nil {
-			t.Errorf("Unexpected Error: %v", err)
-		}
-	}
+	// { // Perform call with a bound context
+	// 	ctx := WithCaller(Background, s.Call)
+	// 	ctx = WithValue(ctx, "asdf", "jkl;")
+	// 	err := Call(ctx, "test", "ping", nil, nil)
+	// 	if err != nil {
+	// 		t.Errorf("Unexpected Error: %v", err)
+	// 	}
+	// }
 }

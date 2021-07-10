@@ -1,10 +1,11 @@
-// Package swap chooses the transport based on a given payload threshold
-package swap
+// Package claimcheck chooses the transport based on a given payload threshold.
+// https://akfpartners.com/growth-blog/claim-check-pattern
+package claimcheck
 
 import (
 	"errors"
 
-	"github.com/bign8/msg"
+	msg "github.com/bign8/msg/pkg"
 )
 
 var _ msg.Transport = (*Transport)(nil)
@@ -53,22 +54,22 @@ func (t *Transport) Open() error {
 }
 
 // Push does a one way transaction
-func (t *Transport) Push(ctx msg.Context, subject string, data []byte) error {
-	if len(data) > t.change {
-		return t.blob.Push(ctx, subject, data)
+func (t *Transport) Push(ctx msg.ContextOld, data *msg.Msg) error {
+	if len(data.Body) > t.change {
+		return t.blob.Push(ctx, data)
 	}
-	return t.pubsub.Push(ctx, subject, data)
+	return t.pubsub.Push(ctx, data)
 }
 
 // Recv receives data (blocking call if suppported)
-func (t *Transport) Recv(fn func(string, []byte)) error {
+func (t *Transport) Recv(fn func(*msg.Msg)) error {
 	return nil
 }
 
 // Send does an RPC stype round trip
-func (t *Transport) Send(ctx msg.Context, subject string, data []byte) ([]byte, error) {
-	if len(data) > t.change {
-		return t.blob.Send(ctx, subject, data)
+func (t *Transport) Send(ctx msg.ContextOld, data *msg.Msg) (*msg.Msg, error) {
+	if len(data.Body) > t.change {
+		return t.blob.Send(ctx, data)
 	}
-	return t.pubsub.Send(ctx, subject, data)
+	return t.pubsub.Send(ctx, data)
 }

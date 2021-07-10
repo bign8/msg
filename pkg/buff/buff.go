@@ -17,8 +17,8 @@ func NewWriter(msg.Writer) Buffer {
 	return nil
 }
 
-// Type is a base serializable type.
-type Type interface {
+// Struct is a base serializable type.
+type Struct interface {
 	Read(Buffer)
 	Write(Buffer)
 }
@@ -29,24 +29,39 @@ type Buffer interface {
 	Err() error    // Any errors encountered when processing
 	Push(string)   // adds a info to errors
 	Pop()          // remove error info
+	Set(error)
+	Len() int
+	Cap() int
+	Grow(int)
 
-	// Read Methods
+	Reader
+	Writer
+}
+
+type Reader interface {
+	ReadBinary() []byte
 	ReadBool() bool
 	ReadByte() byte
+	ReadDouble() float64
+	// ReadI16() int16
+	// ReadI32() int32
+	// ReadI64() int64
 	ReadInt() int
-	ReadFloat() float64
-	ReadStr() string
-	ReadBytes() []byte
-	ReadType(Type)
 	ReadRepeated() (size int) // list or map
+	ReadString() string
+	ReadStruct(Struct)
+}
 
-	// Write Methods
+type Writer interface {
+	WriteBinary([]byte)
 	WriteBool(bool)
 	WriteByte(byte)
+	WriteDouble(float64)
+	// WriteI16(int16)
+	// WriteI32(int32)
+	// WriteI64(int64)
 	WriteInt(int)
-	WriteFloat(float64)
-	WriteStr(string)
-	WriteBytes([]byte)
-	WriteType(Type)
 	WriteRepeated(size int) // list or map
+	WriteString(string)
+	WriteStruct(Struct)
 }
