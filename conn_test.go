@@ -25,16 +25,16 @@ type tranz struct {
 	tunnel chan *Msg
 }
 
-func (t *tranz) Open() error                                 { return nil }
-func (t *tranz) Able() bool                                  { return true }
-func (t *tranz) Kill() error                                 { return nil }
-func (t *tranz) Send(ctx ContextOld, msg *Msg) (*Msg, error) { return nil, errors.New("nope") }
+func (t *tranz) Open() error                              { return nil }
+func (t *tranz) Able() bool                               { return true }
+func (t *tranz) Kill() error                              { return nil }
+func (t *tranz) Send(ctx Context, msg *Msg) (*Msg, error) { return nil, errors.New("nope") }
 func (t *tranz) Wait() <-chan error {
 	c := make(chan error, 1)
 	c <- nil
 	return c
 }
-func (t *tranz) Push(ctx ContextOld, msg *Msg) error {
+func (t *tranz) Push(ctx Context, msg *Msg) error {
 	t.tunnel <- msg
 	return nil
 }

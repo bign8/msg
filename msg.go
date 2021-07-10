@@ -5,7 +5,6 @@ package msg
 
 import (
 	"errors"
-	"time"
 )
 
 const (
@@ -30,20 +29,12 @@ type Msg struct {
 // Handler is a message handler
 type Handler func(*Msg) error
 
-// Context mirrors context.Context (but with fewer imports)
-type ContextOld interface {
-	Deadline() (deadline time.Time, ok bool)
-	Done() <-chan struct{}
-	Err() error
-	Value(key interface{}) interface{}
-}
-
 // Transport is the core communication interface we will communicate over
 type Transport interface {
 	Managed
-	Recv(func(*Msg)) error               // blocking call - when data is received
-	Send(ContextOld, *Msg) (*Msg, error) // Send some data
-	Push(ContextOld, *Msg) error         // send a message one direction
+	Recv(func(*Msg)) error            // blocking call - when data is received
+	Send(Context, *Msg) (*Msg, error) // Send some data
+	Push(Context, *Msg) error         // send a message one direction
 }
 
 // Stream lets you listen to multiple messages on a socket

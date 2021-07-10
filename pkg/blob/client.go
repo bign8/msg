@@ -20,7 +20,7 @@ type Client struct {
 	conn *msg.Conn
 }
 
-func (c *Client) findService(ctx msg.ContextOld) (addr string, err error) {
+func (c *Client) findService(ctx msg.Context) (addr string, err error) {
 	if c.who == "" {
 		var res *msg.Msg
 		res, err = c.conn.Request(ctx, &msg.Msg{
@@ -36,7 +36,7 @@ func (c *Client) findService(ctx msg.ContextOld) (addr string, err error) {
 }
 
 // Load gets a large binary payload
-func (c *Client) Load(ctx msg.ContextOld, id string) (bits []byte, err error) {
+func (c *Client) Load(ctx msg.Context, id string) (bits []byte, err error) {
 	addr, err := c.findService(ctx)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (c *Client) Load(ctx msg.ContextOld, id string) (bits []byte, err error) {
 }
 
 // Save stores a large binary payload
-func (c *Client) Save(ctx msg.ContextOld, bits []byte) (id string, err error) {
+func (c *Client) Save(ctx msg.Context, bits []byte) (id string, err error) {
 	addr, err := c.findService(ctx)
 	if err != nil {
 		return "", err

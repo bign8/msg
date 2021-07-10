@@ -54,7 +54,7 @@ func (t *Transport) Open() error {
 }
 
 // Push does a one way transaction
-func (t *Transport) Push(ctx msg.ContextOld, data *msg.Msg) error {
+func (t *Transport) Push(ctx msg.Context, data *msg.Msg) error {
 	if len(data.Body) > t.change {
 		return t.blob.Push(ctx, data)
 	}
@@ -67,7 +67,7 @@ func (t *Transport) Recv(fn func(*msg.Msg)) error {
 }
 
 // Send does an RPC stype round trip
-func (t *Transport) Send(ctx msg.ContextOld, data *msg.Msg) (*msg.Msg, error) {
+func (t *Transport) Send(ctx msg.Context, data *msg.Msg) (*msg.Msg, error) {
 	if len(data.Body) > t.change {
 		return t.blob.Send(ctx, data)
 	}
