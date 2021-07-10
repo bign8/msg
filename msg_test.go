@@ -17,8 +17,8 @@ func Test(t *testing.T) {
 		Name: "test",
 		Methods: []MethodDesc{{
 			Name:   "ping",
-			Args:   Ptr{Bool},
-			Result: Ptr{Bool},
+			Args:   Bool,
+			Result: Bool,
 			Handler: func(ctx Context, svc interface{}, args interface{}) (interface{}, error) {
 				return nil, nil
 			},

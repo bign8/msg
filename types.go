@@ -5,7 +5,6 @@ import "errors"
 var (
 	_ Type = Slice{}
 	_ Type = Map{}
-	_ Type = Ptr{}
 	_ Type = Struct{}
 
 	Bool       Type = kind(1)
@@ -47,13 +46,6 @@ type Map struct {
 
 func (s Map) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
 func (s Map) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
-
-type Ptr struct {
-	Value Type
-}
-
-func (s Ptr) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
-func (s Ptr) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
 
 type Struct struct {
 	Fields []Type
