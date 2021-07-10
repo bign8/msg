@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bign8/msg/ws"
+	"github.com/bign8/msg/pkg/ws"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket/websocketjs"
 )

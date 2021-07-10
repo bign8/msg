@@ -115,7 +115,7 @@ func (s *Conn) Request(ctx ContextOld, msg *Msg) (*Msg, error) {
 }
 
 // Handle provides a response to a fn
-func (s *Conn) Handle(name string, fn func(Context, *Msg) (*Msg, error)) (Stream, error) {
+func (s *Conn) Handle(name string, fn func(ContextOld, *Msg) (*Msg, error)) (Stream, error) {
 	if s.err != nil || s.trans == nil {
 		return nil, s.err
 	}

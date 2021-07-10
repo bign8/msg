@@ -18,16 +18,16 @@ type buff struct {
 	off int
 }
 
-func (b *buff) Bytes() []byte { return b.arr }
-func (b *buff) Err() error { return b.err }
+func (b *buff) Bytes() []byte    { return b.arr }
+func (b *buff) Err() error       { return b.err }
 func (b *buff) Push(name string) { b.ctx = append(b.ctx, name) }
-func (b *buff) Pop() { b.ctx = b.ctx[:len(b.ctx)-2] }
+func (b *buff) Pop()             { b.ctx = b.ctx[:len(b.ctx)-2] }
 
-func (b *buff) ReadBool() bool { return false }
-func (b *buff) ReadByte() byte { return 0x00 }
-func (b *buff) ReadInt() int { return 0 }
+func (b *buff) ReadBool() bool     { return false }
+func (b *buff) ReadByte() byte     { return 0x00 }
+func (b *buff) ReadInt() int       { return 0 }
 func (b *buff) ReadFloat() float64 { return 0 }
-func (b *buff) ReadStr() string { return "" }
+func (b *buff) ReadStr() string    { return "" }
 func (b *buff) ReadBytes() (a []byte) {
 	if b.err != nil {
 		return nil
@@ -38,23 +38,24 @@ func (b *buff) ReadBytes() (a []byte) {
 		b.fail("long read")
 	}
 	if b.err == nil {
-		a = b.arr[b.off:b.off+n]
+		a = b.arr[b.off : b.off+n]
 		b.off += n
 	}
 	b.Pop()
 	return a
 }
-func (b *buff) ReadType(Type) {}
+func (b *buff) ReadType(Type)     {}
 func (b *buff) ReadRepeated() int { return 0 }
 
-func (b *buff) WriteBool(bool) {}
-func (b *buff) WriteByte(byte) {}
-func (b *buff) WriteInt(int) {}
+func (b *buff) WriteBool(bool)     {}
+func (b *buff) WriteByte(byte)     {}
+func (b *buff) WriteInt(int)       {}
 func (b *buff) WriteFloat(float64) {}
-func (b *buff) WriteStr(string) {}
+func (b *buff) WriteStr(string)    {}
 func (b *buff) WriteBytes(a []byte) {
+	var l int
 	if b.err == nil {
-		l := len(a)
+		l = len(a)
 		b.WriteInt(l)
 	}
 	if b.err == nil {
@@ -62,7 +63,7 @@ func (b *buff) WriteBytes(a []byte) {
 		copy(b.arr[n:], a)
 	}
 }
-func (b *buff) WriteType(Type) {}
+func (b *buff) WriteType(Type)    {}
 func (b *buff) WriteRepeated(int) {}
 
 func (b *buff) grow(n int) int {

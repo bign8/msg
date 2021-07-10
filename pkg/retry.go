@@ -1,6 +1,6 @@
 package msg
 
-import "github.com/bign8/msg/rand"
+import "github.com/bign8/msg/pkg/rand"
 
 const (
 	retryCap  = 60 * 1000 // one-minute max retry

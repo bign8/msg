@@ -3,8 +3,8 @@ package blob
 import (
 	"net/http"
 
-	"github.com/bign8/msg"
-	"github.com/bign8/msg/rand"
+	msg "github.com/bign8/msg/pkg"
+	"github.com/bign8/msg/pkg/rand"
 )
 
 // NewServer constructs a new blob server
