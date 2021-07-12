@@ -29,32 +29,32 @@ var (
 )
 
 type Type interface {
-	ReadFrom(in Reader) (o interface{}, err error)
-	WriteTo(o interface{}, out Writer) error
+	ReadFrom(Reader) error
+	WriteTo(Writer) error
 }
 
 type Slice struct {
 	Value Type
 }
 
-func (s Slice) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
-func (s Slice) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
+func (s Slice) ReadFrom(in Reader) error { return errors.New("TODO") }
+func (s Slice) WriteTo(out Writer) error { return errors.New("TODO") }
 
 type Map struct {
 	Key, Value Type
 }
 
-func (s Map) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
-func (s Map) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
+func (s Map) ReadFrom(in Reader) error { errors.New("TODO") }
+func (s Map) WriteTo(out Writer) error { return errors.New("TODO") }
 
 type Struct struct {
 	Fields []Type
 }
 
-func (s Struct) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
-func (s Struct) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
+func (s Struct) ReadFrom(in Reader) error { return errors.New("TODO") }
+func (s Struct) WriteTo(out Writer) error { return errors.New("TODO") }
 
 type kind uint8
 
-func (k kind) ReadFrom(in Reader) (o interface{}, err error) { return nil, errors.New("TODO") }
-func (k kind) WriteTo(o interface{}, out Writer) error       { return errors.New("TODO") }
+func (k kind) ReadFrom(in Reader) error { return errors.New("TODO") }
+func (k kind) WriteTo(out Writer) error { return errors.New("TODO") }

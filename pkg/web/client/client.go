@@ -20,7 +20,7 @@ type network struct {
 }
 
 // New constructs a new msg.Caller.
-func New(server string) msg.Caller {
+func New(server string) msg.Callable {
 	return (&network{}).call
 }
 

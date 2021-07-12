@@ -15,7 +15,7 @@ const (
 )
 
 // WithCaller attaches various things to a given context
-func WithCaller(ctx Context, val Caller) Context {
+func WithCaller(ctx Context, val Callable) Context {
 	return WithValue(ctx, contextKeyCaller, val)
 }
 
