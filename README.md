@@ -26,11 +26,19 @@ type Transport interface {
 ```
 
 ## Discovery
+Different services (and maybe even methods) can have different encodings and transports.
 
 ```go
 type Discovery interface {
-    Connect(ctx context.Context, service, method string) (Transport, error)
+    Connect(ctx context.Context, service, method string) (Transport, Encoding, error)
 }
+```
+
+## Serving
+To provide a service, you have to announce some parts of about how your service is avilable.
+
+```go
+func Register(service, method string, enc Encoding, cb Handler) {}
 ```
 
 ## Usage
